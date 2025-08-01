@@ -22,3 +22,17 @@
 Installation rapide :
 ```bash
 pip install -r requirements.txt
+```
+
+## 🚀 Lancer l'application
+
+1. Démarrer l'API FastAPI :
+   ```bash
+   python backend/main.py
+   ```
+2. Ouvrir l'interface Streamlit dans un autre terminal :
+   ```bash
+   streamlit run streamlit_app/main.py
+   ```
+
+Ensuite, chargez une image depuis l'interface pour tester l'extraction.

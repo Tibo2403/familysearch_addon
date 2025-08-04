@@ -1,5 +1,8 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
+import base64
+import json
+import requests
 import tempfile
 from typing import Dict
 from src.familysearch_addon import birth_record_json_to_gedcom
@@ -7,17 +10,51 @@ from src.familysearch_addon import birth_record_json_to_gedcom
 app = FastAPI(title="FamilySearch Addon API")
 
 
-def dummy_extract(path: str) -> Dict[str, str]:
-    """Placeholder extraction using a static result.
+def llava_extract(path: str) -> Dict[str, str]:
+    """Extract birth record fields using the LLaVA/Ollama pipeline.
 
-    In a real implementation this would call the LLaVA/Ollama
-    pipeline to extract text from the uploaded image.
+    Parameters
+    ----------
+    path: str
+        Path to an image file containing a birth record.
+
+    Returns
+    -------
+    Dict[str, str]
+        Dictionary with ``name``, ``gender``, ``birth_date`` and
+        ``birth_place`` keys.  Missing values are returned as empty
+        strings.
     """
+    with open(path, "rb") as img:
+        image_b64 = base64.b64encode(img.read()).decode("utf-8")
+
+    prompt = (
+        "Extract the person's name, gender, birth date and birth place "
+        "from this birth record. Return a JSON object with keys 'name', "
+        "'gender', 'birth_date', 'birth_place'."
+    )
+    payload = {
+        "model": "llava",
+        "prompt": prompt,
+        "images": [image_b64],
+        "stream": False,
+    }
+
+    resp = requests.post(
+        "http://localhost:11434/api/generate", json=payload, timeout=60
+    )
+    resp.raise_for_status()
+    raw_text = resp.json().get("response", "{}")
+    try:
+        data = json.loads(raw_text)
+    except json.JSONDecodeError:
+        data = {}
+
     return {
-        "name": "John Doe",
-        "gender": "M",
-        "birth_date": "1 Jan 1900",
-        "birth_place": "Paris",
+        "name": data.get("name", ""),
+        "gender": data.get("gender", ""),
+        "birth_date": data.get("birth_date", ""),
+        "birth_place": data.get("birth_place", ""),
     }
 
 
@@ -29,7 +66,7 @@ async def upload(file: UploadFile = File(...)):
         tmp.write(await file.read())
         temp_path = tmp.name
 
-    record = dummy_extract(temp_path)
+    record = llava_extract(temp_path)
     gedcom = birth_record_json_to_gedcom(record)
 
     return JSONResponse({"json": record, "gedcom": gedcom})

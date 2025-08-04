@@ -3,3 +3,4 @@ uvicorn
 streamlit
 ollama
 python-gedcom
+requests

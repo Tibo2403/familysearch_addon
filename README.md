@@ -35,4 +35,7 @@ pip install -r requirements.txt
    streamlit run streamlit_app/main.py
    ```
 
+   L'URL de l'API peut être personnalisée via la variable d'environnement
+   `API_URL` (par défaut `http://localhost:8000`).
+
 Ensuite, chargez une image depuis l'interface pour tester l'extraction.

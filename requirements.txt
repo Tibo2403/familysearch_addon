@@ -4,3 +4,5 @@ streamlit
 ollama
 python-gedcom
 requests
+pytest
+python-multipart

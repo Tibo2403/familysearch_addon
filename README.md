@@ -81,6 +81,14 @@ The test suite covers:
 }
 ```
 
+## Portfolio Assets
+
+- `docs/portfolio.md` explains the project in recruiter/client terms.
+- `docs/demo-media.md` lists screenshots and GIFs to capture.
+- `docs/issue-backlog.md` contains ready-to-create GitHub issues.
+- `examples/` contains safe demo placeholders.
+- `CHANGELOG.md` tracks release notes.
+
 ## Roadmap
 
 - Add a deterministic demo extractor for local portfolio demos.

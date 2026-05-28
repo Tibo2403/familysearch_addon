@@ -1,96 +1,90 @@
 # FamilySearch Addon
 
-**FamilySearch Addon** est un projet expérimental pour extraire des informations généalogiques à partir de documents d'état civil.
+[![Python Tests](https://github.com/Tibo2403/familysearch_addon/actions/workflows/tests.yml/badge.svg)](https://github.com/Tibo2403/familysearch_addon/actions/workflows/tests.yml)
 
-## 🎯 Objectifs et fonctionnalités prévues
+FamilySearch Addon is an experimental FastAPI and Streamlit project for extracting genealogical data from civil records and converting it to GEDCOM.
 
-- **📤 Téléversement d’images** : Permettre aux utilisateurs d'envoyer des scans d’actes de naissance, mariage et décès.
-- **🧠 Extraction IA/OCR** : Extraire les données textuelles via OCR et modèles linguistiques.
-- **📄 Export GEDCOM** : Convertir les données extraites vers le format [GEDCOM](https://en.wikipedia.org/wiki/GEDCOM).
-- **🔗 Intégration FamilySearch** : Transmettre les individus et relations extraits vers FamilySearch.
+## Features
 
-## ⚙️ Prérequis
+- Upload scanned birth, marriage, or death records.
+- Extract structured fields from images through an OCR/LLM pipeline.
+- Convert extracted birth-record data to GEDCOM.
+- Provide a Streamlit interface for manual testing.
+- Keep the extraction function isolated so it can be replaced by better OCR or FamilySearch integrations later.
 
-- Python 3.10 ou plus récent
-- Dépendances listées dans `requirements.txt` :
-  - `FastAPI`
-  - `Uvicorn`
-  - `Streamlit`
-  - `Ollama`
-  - `python-gedcom`
+## Current Architecture
 
-Installation rapide :
+```text
+backend/main.py          FastAPI upload endpoint and LLaVA extraction wrapper
+streamlit_app/main.py    Streamlit UI for upload and result preview
+src/familysearch_addon/  GEDCOM conversion helpers
+tests/                   API, extraction, and GEDCOM tests
+```
+
+The current extraction implementation calls an Ollama LLaVA model at `http://localhost:11434/api/generate`. Tests mock that call, so CI does not require Ollama.
+
+## Setup
+
 ```bash
+python -m venv .venv
+.venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## 🚀 Lancer l'application
+On Linux or macOS:
 
-1. Démarrer l'API FastAPI :
-   ```bash
-   python backend/main.py
-   ```
-2. Ouvrir l'interface Streamlit dans un autre terminal :
-   ```bash
-   streamlit run streamlit_app/main.py
-   ```
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-   L'URL de l'API peut être personnalisée via la variable d'environnement
-   `API_URL` (par défaut `http://localhost:8000`).
+## Run Locally
 
-Ensuite, chargez une image depuis l'interface pour tester l'extraction.
+Start the API:
 
-## 🏗️ Architecture
+```bash
+python backend/main.py
+```
 
-Le projet se compose de trois parties principales :
+Start the Streamlit UI in another terminal:
 
-- **Backend FastAPI** (`backend/main.py`) : reçoit les fichiers téléversés et renvoie les données extraites en JSON et GEDCOM.
-- **Interface Streamlit** (`streamlit_app/main.py`) : permet d'envoyer des documents et de visualiser les résultats.
-- **Pipeline d'extraction** : actuellement un `dummy_extract` fixe, futur branchement d'OCR et de modèles LLM.
+```bash
+streamlit run streamlit_app/main.py
+```
 
-## 🚧 Limitations actuelles
+The Streamlit app reads the API URL from `API_URL`, defaulting to `http://localhost:8000`.
 
-- Extraction factice et limitée à un exemple statique.
-- Aucune authentification ou gestion des utilisateurs.
-- Seule la conversion d'actes de naissance est prise en charge.
-- Peu de validation et de gestion d'erreurs.
+## Tests
 
-## 📋 Exemples de sorties
+```bash
+pytest -q
+```
 
-JSON retourné par l'API :
+The test suite covers:
+
+- GEDCOM formatting.
+- Upload endpoint validation and error handling.
+- LLaVA response parsing into GEDCOM-compatible data.
+
+## Example API Output
 
 ```json
 {
-  "name": "John Doe",
-  "gender": "M",
-  "birth_date": "1 Jan 1900",
-  "birth_place": "Paris"
+  "json": {
+    "name": "Jane Smith",
+    "gender": "F",
+    "birth_date": "2 Feb 1900",
+    "birth_place": "London"
+  },
+  "gedcom": "0 @I1@ INDI\n1 NAME Jane Smith\n1 SEX F\n1 BIRT\n2 DATE 2 Feb 1900\n2 PLAC London"
 }
 ```
 
-GEDCOM généré :
+## Roadmap
 
-```
-0 @I1@ INDI
-1 NAME John Doe
-1 SEX M
-1 BIRT
-2 DATE 1 Jan 1900
-2 PLAC Paris
-```
-
-## 🤝 Contribuer
-
-1. Forker le dépôt et créer une branche pour votre fonctionnalité ou correction.
-2. Installer les dépendances et exécuter les tests (`pytest`).
-3. Ouvrir une Pull Request décrivant clairement les changements.
-
-Merci de respecter les conventions PEP 8 et d'ajouter des tests si possible.
-
-## 🗺️ Feuille de route
-
-- Remplacer `dummy_extract` par une véritable pipeline OCR + LLM.
-- Supporter d'autres types d'actes (mariage, décès).
-- Ajouter authentification et gestion multi-utilisateurs.
-- Intégration complète avec l'API FamilySearch.
-- Mettre en place CI/CD et améliorer la couverture de tests.
+- Add a deterministic demo extractor for local portfolio demos.
+- Support marriage and death record schemas.
+- Add FamilySearch API integration behind explicit credentials.
+- Add stronger upload size limits and content validation.
+- Add screenshots of the Streamlit workflow.

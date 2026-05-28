@@ -35,7 +35,7 @@ def test_upload_handles_extraction_failure(monkeypatch):
     def _fail(path: str):  # pragma: no cover - used only for testing
         raise Exception("boom")
 
-    monkeypatch.setattr(main, "dummy_extract", _fail)
+    monkeypatch.setattr(main, "extract_record", _fail)
 
     with pytest.raises(HTTPException) as exc:
         asyncio.run(main.upload(file))

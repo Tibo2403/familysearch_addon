@@ -55,6 +55,17 @@ def llava_extract(path: str) -> Dict[str, str]:
     }
 
 
+def extract_record(path: str) -> Dict[str, str]:
+    """Extract genealogy fields from an uploaded document.
+
+    This wrapper is the application-level extension point used by the upload
+    endpoint. Tests and future OCR/LLM implementations can replace it without
+    coupling directly to the LLaVA implementation.
+    """
+
+    return llava_extract(path)
+
+
 @app.post("/upload")
 async def upload(file: UploadFile = File(...)):
     """Receive a file and return extracted JSON and GEDCOM."""
@@ -68,7 +79,7 @@ async def upload(file: UploadFile = File(...)):
         temp_path = tmp.name
 
     try:
-        record = llava_extract(temp_path)
+        record = extract_record(temp_path)
         gedcom = birth_record_json_to_gedcom(record)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

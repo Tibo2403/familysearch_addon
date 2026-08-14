@@ -1,11 +1,20 @@
 # Security Policy
 
-## Supported Versions
+## Supported version
 
-Security fixes are applied to the `main` branch.
+Security fixes target the current default branch. This repository is an
+experimental browser addon and is not an official FamilySearch product.
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-Please report sensitive findings privately to the repository owner. Include the affected endpoint, file type, dependency, or extraction path and a concise reproduction.
+Use GitHub's private vulnerability reporting or open a private security
+advisory in this repository. Do not publish session data, family-tree records,
+personal information, or account credentials in a public issue.
 
-Do not include real civil records, personal genealogy data, API keys, or FamilySearch credentials.
+Include the affected browser and version, impact, reproduction steps, and a
+minimal redacted example when possible.
+
+## Privacy boundaries
+
+Use test or non-sensitive data while evaluating the addon. Review requested
+browser permissions and FamilySearch terms before use.

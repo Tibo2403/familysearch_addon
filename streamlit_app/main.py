@@ -12,8 +12,8 @@ if uploaded is not None:
     st.image(uploaded, caption="Uploaded document")
 
     if st.button("Process with backend"):
-        files = {"file": uploaded.getvalue()}
-        resp = requests.post(f"{API_URL}/upload", files=files)
+        files = {"file": (uploaded.name, uploaded.getvalue(), uploaded.type)}
+        resp = requests.post(f"{API_URL}/upload", files=files, timeout=300)
         if resp.status_code == 200:
             data = resp.json()
             st.subheader("Extracted JSON")

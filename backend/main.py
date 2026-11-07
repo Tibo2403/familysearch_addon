@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 import base64
 import json
 import requests
+import os
 import tempfile
 from typing import Dict
 from src.familysearch_addon import birth_record_json_to_gedcom
@@ -82,7 +83,9 @@ async def upload(file: UploadFile = File(...)):
         record = extract_record(temp_path)
         gedcom = birth_record_json_to_gedcom(record)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        os.unlink(temp_path)
 
     return JSONResponse({"json": record, "gedcom": gedcom})
 
@@ -90,4 +93,4 @@ async def upload(file: UploadFile = File(...)):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host=os.environ.get("HOST", "127.0.0.1"), port=int(os.environ.get("PORT", "8000")))
